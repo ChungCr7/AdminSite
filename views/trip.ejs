@@ -1,0 +1,60 @@
+<%- include('layouts/header') %>
+<main>
+    <div class="container my-5">
+        <h2 class="text-center">My Trips</h2>
+        <table class="table table-bordered table-striped mt-4" style="background-color: #f2f2f2; border-color: #96f699;">
+
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>City</th>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% my_trips.forEach(trips => { %>
+                 <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                    <td class="px-6 py-4"><%= trips.id %></td>
+                    
+                    <td class="px-6 py-4"><%= trips.placeCity %></td>
+                    <td class="px-6 py-4">
+                        <!-- Thêm khung cho hình ảnh -->
+                        <div style="border: 2px solid #ddd; padding: 5px; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center;">
+                            <img src="<%= trips.image %>" alt="Trip Image" style="width: 90px; height: 90px; object-fit: cover; border-radius: 5px;">
+                        </div>
+                    </td>
+                    <td class="px-6 py-4"><%= trips.customerName %></td>
+                    <td class="px-6 py-4"><%= trips.date %></td>
+                    <td class="px-6 py-4"><%= trips.time %></td>
+                    
+                    
+                    <!-- Hành động: Edit và Delete -->
+                    <td class="px-6 py-4">
+                        <!-- Edit -->
+                        <a href="/trips/edit/<%= trips._id %>"
+                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline" 
+                            style="margin-right: 20px;">Edit</a>
+ 
+                        <!-- Delete Form -->
+                        <form method="POST" action="/trips/delete/<%= trips._id %>"style="display: inline;">
+                            <input type="hidden" name="_method" value="DELETE" />
+                            <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                 </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        
+        <div class="d-flex justify-content-end">
+          <button class="btn btn-success" onclick="window.location.href='/trips/new'">Add Trip</button>
+        </div>
+    </div>
+</main>
+<%- include('layouts/footer') %>

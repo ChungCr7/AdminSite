@@ -1,0 +1,43 @@
+<%- include('layouts/header') %>
+<main>
+    <div class="container my-5">
+        <h2 class="text-center">New Trips</h2>
+        <!-- Form để tạo đặt chỗ mới -->
+        <form action="/trips/create" method="post" > 
+
+            <div class="mb-4">
+                <label for="image" class="form-label">Image</label>
+                <input type="ủl" class="form-control" id="image" name="image" accept="image/*">
+            </div>
+            <!-- City-->
+            <div class="mb-4">
+                <label for="placeCity" class="form-label">City</label>
+                <input type="text" class="form-control" id="placeCity" name="placeCity" required>
+            </div>
+            
+
+            <!-- Tên Khách Hàng -->
+            <div class="mb-4">
+                <label for="customerName" class="form-label">Name</label>
+                <input type="text" class="form-control" id="customerName" name="customerName" required>
+            </div>
+
+            <!-- Ngày -->
+            <div class="mb-4">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+
+            <!-- Giờ -->
+            <div class="mb-4">
+                <label for="time" class="form-label">Time</label>
+                <input type="time" class="form-control" id="time" name="time" required>
+            </div>
+
+            
+            <!-- Nút Submit -->
+           <a ><button type="submit" class="btn btn-success">Add Trip Now</button></a>
+        </form>
+    </div>
+</main>
+<%- include('layouts/footer') %>
