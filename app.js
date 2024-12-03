@@ -1,80 +1,58 @@
-import express from "express";
-import router from "./routes/root.js"; 
-import { connectdb } from "./config/connectdb.js";
-import tripRouter from "./routes/trip.js";
-import bodyParser from 'body-parser'; 
-import methodOverride from 'method-override'; // Nhập khẩu method-override
-import session from 'express-session';
-
+const express = require("express");
+const mongoose = require("mongoose");
+const Trip = require("./models/tripModel"); // Import model Trip
+const path = require("path");
+const tripRoutes = require("./routes/tripRoutes");
+const userRoutes = require("./routes/userRoutes");
+const cors = require('cors');
+require("dotenv").config(); // Nạp biến môi trường từ .env
 
 const app = express();
-const port = 3000; 
+app.use(cors());
+app.use(express.json());
 
-// Ket noi mongodb
-connectdb();
+// Cấu hình route
+app.use("/api", tripRoutes);
+app.use("/api/users", userRoutes);
 
- app.set('view engine', "ejs");
- app.set("views", "./views");
- app.use(express.static("public"));
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());  // Nếu gửi dữ liệu dưới dạng JSON
+// Cấu hình đường dẫn tới thư mục chứa tài nguyên tĩnh (images, css, js,...)
 app.use(
-    methodOverride(function(req, res){
-      if (req.body && typeof req.body === 'object' && '_method' in req.body){
-        var method = req.body._method;
-        delete req.body._method;
-        return method;
-      }
+    "/resource/images",
+    express.static(path.join(__dirname, "resource", "images"))
+);
+
+// Kiểm tra biến môi trường Mongo URI
+const mongoUri = process.env.MONGO_URI; // Lấy URI từ biến môi trường
+
+if (!mongoUri) {
+    console.error("Lỗi: MONGO_URI không được định nghĩa trong file .env");
+    process.exit(1); // Dừng server nếu thiếu URI
+}
+
+// Kết nối MongoDB Atlas (không cần các tùy chọn deprecated nữa)
+mongoose
+    .connect(mongoUri)
+    .then(() => {
+        console.log("Đã kết nối thành công tới MongoDB Atlas");
+        processDatabase(); // Gọi hàm sau khi kết nối thành công
     })
-  );
-  // Login
+    .catch((err) => {
+        console.error("Lỗi kết nối:", err);
+        process.exit(1); // Dừng server nếu lỗi kết nối
+    });
 
-// Middleware setup
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-  secret: 'secret-key',
-  resave: false,
-  saveUninitialized: true
-}));
+// Hàm xử lý dữ liệu
+const processDatabase = async() => {
+    try {
+        const trips = await Trip.find(); // Sử dụng model Trip để lấy dữ liệu
+        console.log("Kết nối thành công");
+    } catch (err) {
+        console.error("Lỗi khi xử lý dữ liệu:", err);
+    }
+};
 
-// Hardcoded credentials (admin username and password)
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'baochung123';  // You can change this or retrieve from a database
-
-// Route to show the login page
-app.get('/login', (req, res) => {
-  res.render('login', { title: 'Login Page' });   // Ensure 'login.ejs' is in the views folder
+// Cổng
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server đang chạy trên cổng ${PORT}`);
 });
-
-// Route to handle login form submission
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-
-  // Check if the credentials are correct
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    // Store the username in the session to track the login state
-    req.session.loggedIn = true;
-    req.session.username = username;
-
-    // Redirect to the trips page
-    res.redirect('/trips');
-  } else {
-    // If credentials are incorrect, send back an error message
-    res.send('Invalid credentials, please try again.');
-  }
-});
-
-
-
-
-
- // Định tuyến cho trang chủ
- app.use("/", router);
- 
- app.use("/trips", tripRouter);
-
- // Cong chay
-app.listen(port, () =>{
-    console.log("server started!!");
- });
